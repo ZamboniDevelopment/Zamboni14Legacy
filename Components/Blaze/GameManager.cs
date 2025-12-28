@@ -351,26 +351,32 @@ internal class GameManager : GameManagerBase.Server
 
         if (serverGame == null || serverPlayer == null) return Task.FromResult(new NullStruct());
 
-        //Hack fix
-        UserSessionsBase.Server.NotifyUserSessionDisconnectedAsync(context.BlazeConnection, new UserSessionDisconnectReason
-        {
-            mDisconnectReason = UserSessionDisconnectReason.DisconnectReason.DUPLICATE_LOGIN
-        });
-
         serverGame.RemoveGameParticipant(serverPlayer, request.mPlayerRemovedReason);
-        var lobbies = GetLobbies();
+        
+        //Hack fix
         Task.Run(async () =>
         {
             await Task.Delay(100);
-
-            NotifyGameListUpdateAsync(context.BlazeConnection, new NotifyGameListUpdate
+            UserSessionsBase.Server.NotifyUserSessionDisconnectedAsync(context.BlazeConnection, new UserSessionDisconnectReason
             {
-                mIsFinalUpdate = 1,
-                mListId = 1,
-                // mRemovedGameList = null, Not sure should we use this
-                mUpdatedGames = lobbies
+                mDisconnectReason = UserSessionDisconnectReason.DisconnectReason.DUPLICATE_LOGIN
             });
         });
+
+
+        // var lobbies = GetLobbies();
+        // Task.Run(async () =>
+        // {
+        //     await Task.Delay(100);
+        //
+        //     NotifyGameListUpdateAsync(context.BlazeConnection, new NotifyGameListUpdate
+        //     {
+        //         mIsFinalUpdate = 1,
+        //         mListId = 1,
+        //         // mRemovedGameList = null, Not sure should we use this
+        //         mUpdatedGames = lobbies
+        //     });
+        // });
         return Task.FromResult(new NullStruct());
     }
 

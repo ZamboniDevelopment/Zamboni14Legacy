@@ -12,7 +12,7 @@ internal class GameReportingComponent : GameReportingComponentBase.Server
 
         Task.Run(async () =>
         {
-            await Task.Delay(50);
+            await Task.Delay(10);
             NotifyResultNotificationAsync(context.BlazeConnection, new ResultNotification
             {
                 mBlazeError = 0,
