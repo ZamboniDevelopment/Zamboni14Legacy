@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zamboni14Legacy", "Zamboni14Legacy.csproj", "{D76619E2-7221-4CE0-99EF-FAAA5F0FCF24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blaze3SDK", "..\BlazeSDK\Blaze3SDK\Blaze3SDK.csproj", "{C21037C4-C408-4AEF-AFF1-A8B83BAA9D4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazeCommon", "..\BlazeSDK\BlazeCommon\BlazeCommon.csproj", "{85BEFB56-52B4-482A-B7E3-0F4DE2B3D19E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixedSsl", "..\BlazeSDK\FixedSsl\FixedSsl.csproj", "{0DE9C419-A4CD-4B17-9864-3CD0C548352D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tdf", "..\BlazeSDK\Tdf\Tdf.csproj", "{32FE4EBE-DC9E-4D16-8CCB-4CC2FD703E50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI5", "..\BlazeSDK\XI5\XI5.csproj", "{F88FC470-C1C9-4003-AAFD-A12756272CE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D76619E2-7221-4CE0-99EF-FAAA5F0FCF24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D76619E2-7221-4CE0-99EF-FAAA5F0FCF24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D76619E2-7221-4CE0-99EF-FAAA5F0FCF24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D76619E2-7221-4CE0-99EF-FAAA5F0FCF24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C21037C4-C408-4AEF-AFF1-A8B83BAA9D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C21037C4-C408-4AEF-AFF1-A8B83BAA9D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C21037C4-C408-4AEF-AFF1-A8B83BAA9D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C21037C4-C408-4AEF-AFF1-A8B83BAA9D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85BEFB56-52B4-482A-B7E3-0F4DE2B3D19E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85BEFB56-52B4-482A-B7E3-0F4DE2B3D19E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85BEFB56-52B4-482A-B7E3-0F4DE2B3D19E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85BEFB56-52B4-482A-B7E3-0F4DE2B3D19E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DE9C419-A4CD-4B17-9864-3CD0C548352D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DE9C419-A4CD-4B17-9864-3CD0C548352D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DE9C419-A4CD-4B17-9864-3CD0C548352D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DE9C419-A4CD-4B17-9864-3CD0C548352D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32FE4EBE-DC9E-4D16-8CCB-4CC2FD703E50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32FE4EBE-DC9E-4D16-8CCB-4CC2FD703E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32FE4EBE-DC9E-4D16-8CCB-4CC2FD703E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32FE4EBE-DC9E-4D16-8CCB-4CC2FD703E50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88FC470-C1C9-4003-AAFD-A12756272CE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88FC470-C1C9-4003-AAFD-A12756272CE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88FC470-C1C9-4003-AAFD-A12756272CE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88FC470-C1C9-4003-AAFD-A12756272CE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
