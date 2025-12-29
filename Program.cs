@@ -11,6 +11,7 @@ using Zamboni14Legacy.Components.Blaze;
 using Zamboni14Legacy.Components.Blaze.NHL14Legacy;
 using Zamboni14Legacy.Components.Blaze.NHL14Legacy.Report;
 using LogLevel = NLog.LogLevel;
+using Zamboni14Legacy.Api;
 
 namespace Zamboni14Legacy;
 
@@ -40,7 +41,7 @@ internal class Program
 
         tasks.Add(Task.Run(StartCommandListener));
         tasks.Add(StartCoreServer());
-        tasks.Add(new Api().StartAsync());
+        tasks.Add(new ApiHandler().StartAsync());
         if (ZamboniConfig.HostRedirectorInstance) tasks.Add(StartRedirectorServer());
         Logger.Warn(Name + " started");
         await Task.WhenAll(tasks);
@@ -87,6 +88,7 @@ internal class Program
                            "# GameServerPort: Port for GameServer to listen on. (Redirector server lives on " + RedirectorPort + ", clients request there)\n" +
                            "# LogLevel: Valid values: Trace, Debug, Info, Warn, Error, Fatal, Off.\n" +
                            "# DatabaseConnectionString: Connection string to PostgreSQL, for saving data. (Not required)\n" +
+                           "# RedisConnectionString: Connection string to Redis, for caching api data. (Not required)\n" +
                            "# HostRedirectorInstance: Whether this program should host a Redirector instance\n" +
                            "# ApiServerIdentifier and ApiServerPort: identifier and port where status is\n\n";
 
