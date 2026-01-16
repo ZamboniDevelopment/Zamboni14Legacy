@@ -14,7 +14,7 @@ public class Api
         var builder = WebApplication.CreateBuilder();
         var app = builder.Build();
 
-        app.MapGet("/" + Program.ZamboniConfig.ApiServerIdentifier + "/status", () => Results.Json(new
+        app.MapGet("/" + Program.ZamboniConfig.ApiServerIdentifier.ToLower() + "/status", () => Results.Json(new
         {
             serverVersion = Program.ZamboniConfig.ApiServerIdentifier,
             onlineUsersCount = ServerManager.GetServerPlayers().Count,
