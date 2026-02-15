@@ -1,6 +1,7 @@
 using BlazeCommon;
+using Zamboni14Legacy.Components.NHL14Legacy.Bases;
 
-namespace Zamboni14Legacy.Components.Blaze.NHL14Legacy;
+namespace Zamboni14Legacy.Components.NHL14Legacy;
 
 internal class TwoTwoFiveOneComponent : TwoTwoFiveOneComponentBase.Server
 {

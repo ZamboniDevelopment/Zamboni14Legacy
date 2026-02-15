@@ -1,6 +1,6 @@
 using Tdf;
 
-namespace Zamboni14Legacy.Components.Blaze.NHL14Legacy.Report
+namespace Zamboni14Legacy.Components.NHL14Legacy.Structs.Report
 {
     [TdfStruct(0x7C56BF5B)]
     public struct Report

@@ -7,17 +7,16 @@ using NLog.Layouts;
 using Tdf;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Zamboni14Legacy.Components;
 using Zamboni14Legacy.Components.Blaze;
-using Zamboni14Legacy.Components.Blaze.NHL14Legacy;
-using Zamboni14Legacy.Components.Blaze.NHL14Legacy.Report;
+using Zamboni14Legacy.Components.NHL14Legacy;
+using Zamboni14Legacy.Components.NHL14Legacy.Structs.Report;
 using LogLevel = NLog.LogLevel;
 
 namespace Zamboni14Legacy;
 
 internal class Program
 {
-    public const string Name = "Zamboni14Legacy 1.0";
+    public const string Name = "Zamboni14Legacy 1.1";
     public const int RedirectorPort = 42127;
 
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -125,10 +124,11 @@ internal class Program
         core.AddComponent<GameReportingComponent>();
         core.AddComponent<LeagueComponent>();
 
-        // core.AddComponent<TwoTwoFiveZeroComponent>();
+        core.AddComponent<OsdkDynamicMessagingComponent>();
         core.AddComponent<TwoTwoFiveOneComponent>();
-        core.AddComponent<TwoTwoFourNineComponent>();
+        core.AddComponent<OSDKSettingsComponent>();
         core.AddComponent<TwoTwoSixEightComponent>();
+        core.AddComponent<OsdkTicker2Component>();
 
 
         tdfFactory.RegisterTdfType(typeof(Report));

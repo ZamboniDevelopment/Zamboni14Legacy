@@ -2,7 +2,7 @@ using Blaze3SDK;
 using BlazeCommon;
 using NLog;
 
-namespace Zamboni14Legacy.Components.Blaze.NHL14Legacy;
+namespace Zamboni14Legacy.Components.NHL14Legacy.Bases;
 
 public static class TwoTwoFiveOneComponentBase
 {

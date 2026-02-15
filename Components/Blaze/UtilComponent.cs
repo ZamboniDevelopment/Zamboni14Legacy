@@ -14,7 +14,7 @@ internal class UtilComponent : UtilComponentBase.Server
             mAuthenticationSource = "303107",
             mComponentIds = new List<ushort>
             {
-                1, 4, 5, 7, 9, 10, 11, 13, 15, 21, 25, 28, 2249, 2250, 2251, 2268, 30722
+                1, 4, 5, 7, 9, 10, 11, 13, 15, 21, 25, 28, 2249, 2250, 2251, 2262, 2268, 30722
             },
             mConfig = new FetchConfigResponse
             {
@@ -154,12 +154,13 @@ internal class UtilComponent : UtilComponentBase.Server
                 mConfig = new SortedDictionary<string, string>
                 {
                     {
-                        //EXPERIMENTAL WE STILL NEED PATCH
-                        "OSDK_ROSTER", "OSDK_rosterVersion=1xiPUG3Cn22f0H2Y7K1QkGUt4BtuKH2v7P3A2uNP5t3WWcV21S1Tv3"
+                        "CRC", ""
+                    },
+                    {
+                        "URL", ""
                     }
                 }
             });
-
         return Task.FromResult(new FetchConfigResponse
         {
             mConfig = new SortedDictionary<string, string>()
@@ -168,12 +169,15 @@ internal class UtilComponent : UtilComponentBase.Server
 
     public override Task<LocalizeStringsResponse> LocalizeStringsAsync(LocalizeStringsRequest request, BlazeRpcContext context)
     {
-        var localizedStrings = new SortedDictionary<string, string>();
-        foreach (var VARIABLE in request.mStringIds) localizedStrings.Add(VARIABLE, VARIABLE);
+        var retList = new SortedDictionary<string, string>();
+        foreach (var variable in request.mStringIds)
+        {
+            retList.Add(variable, variable);
+        }
 
         return Task.FromResult(new LocalizeStringsResponse
         {
-            mLocalizedStrings = localizedStrings
+            mLocalizedStrings = retList
         });
     }
 }

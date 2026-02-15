@@ -1,11 +1,11 @@
-using System.Text;
+using Blaze3SDK;
 using Blaze3SDK.Blaze;
 using Blaze3SDK.Blaze.Authentication;
 using Blaze3SDK.Blaze.Util;
 using Blaze3SDK.Components;
 using BlazeCommon;
+using SceNetNp;
 using Tdf;
-using XI5;
 
 namespace Zamboni14Legacy.Components.Blaze;
 
@@ -13,20 +13,23 @@ internal class AuthenticationComponent : AuthenticationComponentBase.Server
 {
     public override Task<ConsoleLoginResponse> Ps3LoginAsync(PS3LoginRequest request, BlazeRpcContext context)
     {
-        var ticket = new XI5Ticket(request.mPS3Ticket);
+        if (!NpTicket.TryParse(request.mPS3Ticket, out NpTicket? ticket))
+        {
+            throw new BlazeRpcException(Blaze3RpcError.AUTH_ERR_INVALID_PS3_TICKET);
+        }
 
         //Still unsure what EXBB is. Research concluded its
         //`externalblob` binary(36) DEFAULT NULL COMMENT 'sizeof(SceNpId)==36',
         //"SceNpId", Its 36 bytes long, it starts with PSN Username and suffixed with other data in the end
         //This taken straight from https://github.com/hallofmeat/Skateboard3Server/blob/master/src/Skateboard3Server.Blaze/Handlers/Authentication/LoginHandler.cs
-        var externalBlob = new List<byte>();
-        externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.OnlineId.PadRight(20, '\0')));
-        externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.Domain));
-        externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.Region));
-        externalBlob.AddRange(Encoding.ASCII.GetBytes("ps3"));
-        externalBlob.Add(0x0);
-        externalBlob.Add(0x1);
-        externalBlob.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+        // var externalBlob = new List<byte>();
+        // externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.OnlineId.PadRight(20, '\0')));
+        // externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.Domain));
+        // externalBlob.AddRange(Encoding.ASCII.GetBytes(ticket.Region));
+        // externalBlob.AddRange(Encoding.ASCII.GetBytes("ps3"));
+        // externalBlob.Add(0x0);
+        // externalBlob.Add(0x1);
+        // externalBlob.AddRange(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
 
         var extendedData = new UserSessionExtendedData
         {
@@ -48,40 +51,41 @@ internal class AuthenticationComponent : AuthenticationComponentBase.Server
                 mNatType = NatType.NAT_TYPE_MODERATE,
                 mUpstreamBitsPerSecond = 10
             },
-            mUserInfoAttribute = ticket.UserId
+            mUserInfoAttribute = ticket.SubjectId
         };
 
         var userIdentification = new UserIdentification
         {
-            mAccountId = (long)ticket.UserId,
+            mAccountId = (long)ticket.SubjectId,
             mAccountLocale = 1701729619,
-            mBlazeId = (long)ticket.UserId,
-            mExternalBlob = externalBlob.ToArray(),
-            mExternalId = ticket.UserId,
-            mName = ticket.OnlineId,
-            mORIG = ticket.UserId
+            mBlazeId = (long)ticket.SubjectId,
+            // mExternalBlob = externalBlob.ToArray(),
+            mExternalId = ticket.SubjectId,
+            mName = ticket.SubjectHandle,
+            mORIG = ticket.SubjectId
         };
 
         var sessionInfo = new SessionInfo
         {
-            mBlazeUserId = (long)ticket.UserId,
+            mBlazeUserId = (long)ticket.SubjectId,
             mIsFirstLogin = false,
             mSessionKey = "does-client-even-need-this",
             mLastLoginDateTime = 10,
             mEmail = "",
             mPersonaDetails = new PersonaDetails
             {
-                mDisplayName = ticket.OnlineId,
+                mDisplayName = ticket.SubjectHandle,
                 mLastAuthenticated = 0,
-                mPersonaId = (long)ticket.UserId,
+                mPersonaId = (long)ticket.SubjectId,
                 mPlatform = ExternalSystemId.PS3,
                 mStatus = PersonaStatus.ACTIVE,
-                mExtId = ticket.UserId
+                mExtId = ticket.SubjectId
             },
-            mUserId = (long)ticket.UserId
+            mUserId = (long)ticket.SubjectId
         };
 
         new ServerPlayer(context.BlazeConnection, userIdentification, extendedData, sessionInfo);
+        
         Task.Run(async () =>
         {
             await Task.Delay(300);

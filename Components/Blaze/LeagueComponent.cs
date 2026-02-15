@@ -1,8 +1,7 @@
-using Blaze3SDK.Blaze.League;
 using Blaze3SDK.Components;
 using BlazeCommon;
 
-namespace Zamboni14Legacy.Components;
+namespace Zamboni14Legacy.Components.Blaze;
 
 internal class LeagueComponent : LeagueComponentBase.Server
 {
