@@ -7,6 +7,7 @@ using NLog.Layouts;
 using Tdf;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Zamboni14Legacy.Components;
 using Zamboni14Legacy.Components.Blaze;
 using Zamboni14Legacy.Components.Blaze.NHL14Legacy;
 using Zamboni14Legacy.Components.Blaze.NHL14Legacy.Report;
@@ -122,6 +123,7 @@ internal class Program
         core.AddComponent<StatsComponent>();
         core.AddComponent<GameManager>();
         core.AddComponent<GameReportingComponent>();
+        core.AddComponent<LeagueComponent>();
 
         // core.AddComponent<TwoTwoFiveZeroComponent>();
         core.AddComponent<TwoTwoFiveOneComponent>();
