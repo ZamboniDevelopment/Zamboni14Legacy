@@ -1,3 +1,4 @@
+using Blaze3SDK.Blaze.Rooms;
 using Blaze3SDK.Components;
 using BlazeCommon;
 
@@ -5,7 +6,7 @@ namespace Zamboni14Legacy.Components.Blaze;
 
 internal class RoomsComponent : RoomsComponentBase.Server
 {
-    public override Task<NullStruct> SelectViewUpdatesAsync(NullStruct request, BlazeRpcContext context)
+    public override Task<NullStruct> SelectViewUpdatesAsync(SelectViewUpdatesRequest request, BlazeRpcContext context)
     {
         return Task.FromResult(new NullStruct());
     }
