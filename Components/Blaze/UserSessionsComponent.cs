@@ -12,7 +12,7 @@ internal class UserSessionsComponent : UserSessionsBase.Server
         {
             await Task.Delay(5000);
 
-            var serverPlayer = ServerManager.GetServerPlayer(context.BlazeConnection);
+            var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
             if (serverPlayer == null) return;
 
             var serverPlayerExtendedData = serverPlayer.ExtendedData;
@@ -48,7 +48,7 @@ internal class UserSessionsComponent : UserSessionsBase.Server
 
     public override Task<UserData> LookupUserAsync(UserIdentification request, BlazeRpcContext context)
     {
-        var target = ServerManager.GetServerPlayer(request.mName);
+        var target = ServerManager.GetServerPlayerByName(request.mName);
         if (target == null) return Task.FromResult(new UserData());
         return Task.FromResult(new UserData
         {
@@ -66,7 +66,7 @@ internal class UserSessionsComponent : UserSessionsBase.Server
         if (request.mLookupType.Equals(LookupUsersRequest.LookupType.PERSONA_NAME))
             foreach (var variable in request.mUserIdentificationList)
             {
-                var serverPlayer = ServerManager.GetServerPlayer(variable.mName);
+                var serverPlayer = ServerManager.GetServerPlayerByName(variable.mName);
                 if (serverPlayer != null)
                     response.mUserDataList.Add(new UserData
                     {

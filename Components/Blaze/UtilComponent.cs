@@ -90,7 +90,7 @@ internal class UtilComponent : UtilComponentBase.Server
     public override Task<PingResponse> PingAsync(NullStruct request, BlazeRpcContext context)
     {
         var time = (uint)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-        var serverPlayer = ServerManager.GetServerPlayer(context.BlazeConnection);
+        var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
         if (serverPlayer != null) serverPlayer.LastPingedTime = time;
         return Task.FromResult(new PingResponse
         {

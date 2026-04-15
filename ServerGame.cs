@@ -134,7 +134,7 @@ public class ServerGame
             {
             }
         };
-        ServerManager.AddServerGame(this);
+        ServerManager.AddServerGame(gameId,this);
     }
 
     public List<ServerPlayer> ServerPlayers { get; } = new();
@@ -200,7 +200,7 @@ public class ServerGame
                     mPlayerRemovedReason = reason
                 });
 
-            if (ServerPlayers.Count == 0) ServerManager.RemoveServerGame(this);
+            if (ServerPlayers.Count == 0) ServerManager.RemoveServerGame(ReplicatedGameData.mGameId);
         }
     }
 

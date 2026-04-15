@@ -18,7 +18,7 @@ public class Api
         {
             serverVersion = Program.ZamboniConfig.ApiServerIdentifier,
             onlineUsersCount = ServerManager.GetServerPlayers().Count,
-            onlineUsers = string.Join(", ", ServerManager.GetServerPlayers().Select(serverPlayer => serverPlayer.UserIdentification.mName)),
+            onlineUsers = string.Join(", ", ServerManager.GetServerPlayers().Values.Select(serverPlayer => serverPlayer.UserIdentification.mName)),
             queuedUsers = ServerManager.GetQueuedPlayers().Count,
             activeGames = ServerManager.GetServerGames().Count
         }));

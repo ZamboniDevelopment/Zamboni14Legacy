@@ -4,7 +4,7 @@ using Blaze3SDK.Blaze.GameReporting;
 using NLog;
 using Npgsql;
 using Tdf;
-using Zamboni14Legacy.Components.NHL14Legacy.Structs.Report;
+using ZamboniCommonComponents.Structs.TdfTagged;
 
 namespace Zamboni14Legacy;
 

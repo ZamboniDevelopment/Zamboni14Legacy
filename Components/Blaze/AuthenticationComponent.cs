@@ -136,7 +136,7 @@ internal class AuthenticationComponent : AuthenticationComponentBase.Server
 
     public override Task<AccountInfo> GetAccountAsync(NullStruct request, BlazeRpcContext context)
     {
-        var serverPlayer = ServerManager.GetServerPlayer(context);
+        var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
 
         return Task.FromResult(new AccountInfo
         {

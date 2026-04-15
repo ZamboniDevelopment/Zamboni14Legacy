@@ -7,13 +7,14 @@ namespace Zamboni14Legacy;
 
 public class ServerPlayer
 {
+
     public ServerPlayer(BlazeServerConnection blazeServerConnection, UserIdentification userIdentification, UserSessionExtendedData extendedData, SessionInfo sessionInfo)
     {
         BlazeServerConnection = blazeServerConnection;
         UserIdentification = userIdentification;
         ExtendedData = extendedData;
         SessionInfo = sessionInfo;
-        ServerManager.AddServerPlayer(this);
+        _ = ServerManager.AddServerPlayer(userIdentification.mAccountId, this);
     }
 
     public BlazeServerConnection BlazeServerConnection { get; }
@@ -38,7 +39,7 @@ public class ServerPlayer
             mPlayerSessionId = (uint)UserIdentification.mBlazeId,
             mPlayerState = PlayerState.ACTIVE_CONNECTING,
             mSlotId = slot,
-            mSlotType = SlotType.SLOT_PRIVATE,
+            mSlotType = SlotType.SLOT_PUBLIC,
             mTeamIndex = slot,
             mUserGroupId = default
         };

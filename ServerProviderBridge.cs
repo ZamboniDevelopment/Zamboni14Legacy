@@ -6,11 +6,11 @@ public class ServerProviderBridge : IServerProvider
 {
     public long GetUserIdByConnectionId(long connectionId)
     {
-        return 301116;
+        return ServerManager.GetServerPlayerByConnectionId(connectionId)!.UserIdentification.mAccountId;
     }
 
     public string GetUserNameByUserId(long userId)
     {
-        return "Kaap0";
+        return ServerManager.GetServerPlayerByUserId(userId)!.UserIdentification.mName;
     }
 }

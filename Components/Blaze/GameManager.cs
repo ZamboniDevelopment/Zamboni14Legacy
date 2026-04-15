@@ -24,11 +24,11 @@ internal class GameManager : GameManagerBase.Server
 
     private static void OnTimedEvent(object sender, ElapsedEventArgs e)
     {
-        foreach (var serverGame in ServerManager.GetServerGames().ToList()) // How to not fix bugs
+        foreach (var serverGame in ServerManager.GetServerGames().Values.ToList()) // How to not fix bugs
             if (serverGame.ServerPlayers.Count == 0)
             {
-                ServerManager.RemoveServerGame(serverGame);
-                foreach (var serverPlayer in ServerManager.GetServerPlayers())
+                ServerManager.RemoveServerGame(serverGame.ReplicatedGameData.mGameId);
+                foreach (var serverPlayer in ServerManager.GetServerPlayers().Values.ToList())
                     NotifyGameRemovedAsync(serverPlayer.BlazeServerConnection, new NotifyGameRemoved
                     {
                         mDestructionReason = GameDestructionReason.HOST_LEAVING,
@@ -37,7 +37,7 @@ internal class GameManager : GameManagerBase.Server
             }
 
         var time = (uint)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-        foreach (var serverPlayer in ServerManager.GetServerPlayers()) // How to not fix bugs pt2
+        foreach (var serverPlayer in ServerManager.GetServerPlayers().Values) // How to not fix bugs pt2
         {
             if (serverPlayer.LastPingedTime == 0) continue;
             if (serverPlayer.LastPingedTime + 3600 >= time) continue;
@@ -47,7 +47,7 @@ internal class GameManager : GameManagerBase.Server
                     mDisconnectReason = UserSessionDisconnectReason.DisconnectReason.DUPLICATE_LOGIN
                 });
 
-            ServerManager.RemoveServerPlayer(serverPlayer);
+            ServerManager.RemoveServerPlayerByUserId(serverPlayer.UserIdentification.mAccountId);
         }
     }
 
@@ -83,9 +83,9 @@ internal class GameManager : GameManagerBase.Server
 
     public override Task<NullStruct> CancelMatchmakingAsync(CancelMatchmakingRequest request, BlazeRpcContext context)
     {
-        var serverPlayer = ServerManager.GetServerPlayer(context.BlazeConnection);
+        var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
         var queuedPlayer = ServerManager.GetQueuedPlayer(serverPlayer);
-        if (queuedPlayer != null) ServerManager.RemoveQueuedPlayer(queuedPlayer);
+        if (queuedPlayer != null) ServerManager.RemoveQueuedPlayerByUserId(queuedPlayer.ServerPlayer.UserIdentification.mAccountId);
         NotifyMatchmakingFailedAsync(context.BlazeConnection, new NotifyMatchmakingFailed
         {
             mMatchmakingResult = MatchmakingResult.SESSION_TERMINATED,
@@ -99,7 +99,7 @@ internal class GameManager : GameManagerBase.Server
     public override Task<JoinGameResponse> JoinGameAsync(JoinGameRequest request, BlazeRpcContext context)
     {
         var serverGame = ServerManager.GetServerGame(request.mGameId);
-        var serverPlayer = ServerManager.GetServerPlayer(context.BlazeConnection);
+        var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
 
         if (!serverGame.HasSpaceForPlayer()) throw new Exception();
 
@@ -141,7 +141,7 @@ internal class GameManager : GameManagerBase.Server
     private static List<GameBrowserMatchData> GetLobbies()
     {
         var lobbies = new List<GameBrowserMatchData>();
-        foreach (var serverGame in ServerManager.GetServerGames())
+        foreach (var serverGame in ServerManager.GetServerGames().Values)
         {
             if (serverGame.ReplicatedGameData.mGameState != GameState.PRE_GAME &&
                 serverGame.ReplicatedGameData.mGameState != GameState.INITIALIZING) continue;
@@ -280,7 +280,6 @@ internal class GameManager : GameManagerBase.Server
     public override Task<NullStruct> SetPlayerAttributesAsync(SetPlayerAttributesRequest request, BlazeRpcContext context)
     {
         var zamboniGame = ServerManager.GetServerGame(request.mGameId);
-        var serverPlayer = ServerManager.GetServerPlayer((uint)request.mPlayerId);
 
         foreach (var participant in zamboniGame.ServerPlayers)
             NotifyPlayerAttribChangeAsync(participant.BlazeServerConnection, new NotifyPlayerAttribChange
@@ -332,7 +331,7 @@ internal class GameManager : GameManagerBase.Server
                 }
                 case PlayerNetConnectionStatus.DISCONNECTED:
                 {
-                    var serverPlayer = ServerManager.GetServerPlayer((uint)playerConnectionStatus.mTargetPlayer);
+                    var serverPlayer = ServerManager.GetServerPlayerByUserId(playerConnectionStatus.mTargetPlayer);
                     serverGame.RemoveGameParticipant(serverPlayer, PlayerRemovedReason.PLAYER_CONN_LOST);
                     break;
                 }
@@ -347,7 +346,7 @@ internal class GameManager : GameManagerBase.Server
     public override Task<NullStruct> RemovePlayerAsync(RemovePlayerRequest request, BlazeRpcContext context)
     {
         var serverGame = ServerManager.GetServerGame(request.mGameId);
-        var serverPlayer = ServerManager.GetServerPlayer((uint)request.mPlayerId);
+        var serverPlayer = ServerManager.GetServerPlayerByUserId(request.mPlayerId);
 
         if (serverGame == null || serverPlayer == null) return Task.FromResult(new NullStruct());
 
@@ -423,7 +422,7 @@ internal class GameManager : GameManagerBase.Server
 
     public override Task<CreateGameResponse> CreateGameAsync(CreateGameRequest request, BlazeRpcContext context)
     {
-        var host = ServerManager.GetServerPlayer(context.BlazeConnection);
+        var host = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
         var serverGame = new ServerGame(host, request);
         Task.Run(async () =>
         {
@@ -431,7 +430,7 @@ internal class GameManager : GameManagerBase.Server
             serverGame.AddGameParticipant(host);
             var lobbies = GetLobbies();
 
-            foreach (var serverPlayer in ServerManager.GetServerPlayers().ToList())
+            foreach (var serverPlayer in ServerManager.GetServerPlayers().Values)
                 NotifyGameListUpdateAsync(serverPlayer.BlazeServerConnection, new NotifyGameListUpdate
                 {
                     mIsFinalUpdate = 1,
