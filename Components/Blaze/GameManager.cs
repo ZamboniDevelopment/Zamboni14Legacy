@@ -1,4 +1,5 @@
 using System.Timers;
+using Blaze3SDK;
 using Blaze3SDK.Blaze;
 using Blaze3SDK.Blaze.GameManager;
 using Blaze3SDK.Components;
@@ -24,11 +25,11 @@ internal class GameManager : GameManagerBase.Server
 
     private static void OnTimedEvent(object sender, ElapsedEventArgs e)
     {
-        foreach (var serverGame in ServerManager.GetServerGames().Values.ToList()) // How to not fix bugs
+        foreach (var serverGame in ServerManager.GetServerGames().Values) // How to not fix bugs
             if (serverGame.ServerPlayers.Count == 0)
             {
                 ServerManager.RemoveServerGame(serverGame.ReplicatedGameData.mGameId);
-                foreach (var serverPlayer in ServerManager.GetServerPlayers().Values.ToList())
+                foreach (var serverPlayer in ServerManager.GetServerPlayers().Values)
                     NotifyGameRemovedAsync(serverPlayer.BlazeServerConnection, new NotifyGameRemoved
                     {
                         mDestructionReason = GameDestructionReason.HOST_LEAVING,
@@ -36,11 +37,10 @@ internal class GameManager : GameManagerBase.Server
                     });
             }
 
-        var time = (uint)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
         foreach (var serverPlayer in ServerManager.GetServerPlayers().Values) // How to not fix bugs pt2
         {
             if (serverPlayer.LastPingedTime == 0) continue;
-            if (serverPlayer.LastPingedTime + 3600 >= time) continue;
+            if (serverPlayer.LastPingedTime + 3600 >= (uint)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds) continue;
             if (serverPlayer.BlazeServerConnection != null)
                 UserSessionsBase.Server.NotifyUserSessionDisconnectedAsync(serverPlayer.BlazeServerConnection, new UserSessionDisconnectReason
                 {
@@ -49,37 +49,55 @@ internal class GameManager : GameManagerBase.Server
 
             ServerManager.RemoveServerPlayerByUserId(serverPlayer.UserIdentification.mAccountId);
         }
+
+        if (ServerManager.GetQueuedPlayers().Count <= 1) return;
+
+        var grouped = ServerManager.GetQueuedPlayers().Values.GroupBy(u => u.StartMatchmakingRequest.mCriteriaData.mGenericRulePrefsList.Find(prefs => prefs.mRuleName.Equals("OSDK_gameMode")).mDesiredValues[0]);
+
+        foreach (var group in grouped)
+        {
+            var users = group.ToList();
+
+            while (users.Count >= 2)
+            {
+                var queuedPlayerA = users[0];
+                var queuedPlayerB = users[1];
+
+                users.RemoveRange(0, 2);
+                ServerManager.RemoveQueuedPlayerByUserId(queuedPlayerA.ServerPlayer.UserIdentification.mAccountId);
+                ServerManager.RemoveQueuedPlayerByUserId(queuedPlayerB.ServerPlayer.UserIdentification.mAccountId);
+
+                SendToMatchMakingGame(queuedPlayerA, queuedPlayerB, queuedPlayerA.StartMatchmakingRequest);
+            }
+        }
     }
 
-    // private static void SendToMatchMakingGame(QueuedPlayer host, QueuedPlayer notHost, StartMatchmakingRequest startMatchmakingRequest, string gameMode)
-    // {
-    //     var zamboniGame = new ServerGame(host.ServerPlayer, startMatchmakingRequest, gameMode);
-    //     
-    //     zamboniGame.AddGameParticipant(host.ServerPlayer, host.MatchmakingSessionId);
-    //
-    //     Task.Run(async () =>
-    //     {
-    //         await Task.Delay(200); 
-    //         
-    //       
-    //         
-    //     zamboniGame.AddGameParticipant(notHost.ServerPlayer, notHost.MatchmakingSessionId);
-    //         
-    //     });
-    // }
-    //
-    // public override Task<StartMatchmakingResponse> StartMatchmakingAsync(StartMatchmakingRequest request, BlazeRpcContext context)
-    // {
-    //     var serverPlayer = ServerManager.GetServerPlayer(context.BlazeConnection);
-    //
-    //     var queuedPlayer = new QueuedPlayer(serverPlayer, request);
-    //     ServerManager.AddQueuedPlayer(queuedPlayer);
-    //
-    //     return Task.FromResult(new StartMatchmakingResponse
-    //     {
-    //         mSessionId = queuedPlayer.MatchmakingSessionId
-    //     });
-    // }
+    private static void SendToMatchMakingGame(QueuedPlayer host, QueuedPlayer notHost, StartMatchmakingRequest startMatchmakingRequest)
+    {
+        var zamboniGame = new ServerGame(host.ServerPlayer, startMatchmakingRequest);
+
+        zamboniGame.AddGameParticipant(host.ServerPlayer, host.MatchmakingSessionId);
+        zamboniGame.AddGameParticipant(notHost.ServerPlayer, notHost.MatchmakingSessionId);
+    }
+    public override Task<StartMatchmakingResponse> StartMatchmakingAsync(StartMatchmakingRequest request, BlazeRpcContext context)
+    {
+        GenericRulePrefs genericRulePrefs = request.mCriteriaData.mGenericRulePrefsList.Find(prefs => prefs.mRuleName.Equals("OSDK_gameMode"));
+        string targetGameMode = genericRulePrefs.mDesiredValues[0];
+        if (!targetGameMode.Equals("6"))
+        {
+            throw new BlazeRpcException(Blaze3RpcError.ERR_COMMAND_NOT_FOUND);
+        }
+
+        var serverPlayer = ServerManager.GetServerPlayerByConnectionId(context.Connection.ID);
+
+        var queuedPlayer = new QueuedPlayer(serverPlayer, request);
+        ServerManager.AddQueuedPlayer(serverPlayer.UserIdentification.mAccountId, queuedPlayer);
+
+        return Task.FromResult(new StartMatchmakingResponse
+        {
+            mSessionId = queuedPlayer.MatchmakingSessionId
+        });
+    }
 
     public override Task<NullStruct> CancelMatchmakingAsync(CancelMatchmakingRequest request, BlazeRpcContext context)
     {
@@ -89,10 +107,11 @@ internal class GameManager : GameManagerBase.Server
         NotifyMatchmakingFailedAsync(context.BlazeConnection, new NotifyMatchmakingFailed
         {
             mMatchmakingResult = MatchmakingResult.SESSION_TERMINATED,
-            mMaxPossibleFitScore = 0
-            // mSessionId = queuedPlayer.MatchmakingSessionId,
+            mMaxPossibleFitScore = 0,
+            mSessionId = queuedPlayer.MatchmakingSessionId,
             // mUserSessionId = (uint)serverPlayer.SessionInfo.mBlazeUserId
-        });
+        },true
+            );
         return Task.FromResult(new NullStruct());
     }
 

@@ -39,7 +39,7 @@ public class ServerPlayer
             mPlayerSessionId = (uint)UserIdentification.mBlazeId,
             mPlayerState = PlayerState.ACTIVE_CONNECTING,
             mSlotId = slot,
-            mSlotType = SlotType.SLOT_PUBLIC,
+            mSlotType = SlotType.SLOT_PRIVATE,
             mTeamIndex = slot,
             mUserGroupId = default
         };

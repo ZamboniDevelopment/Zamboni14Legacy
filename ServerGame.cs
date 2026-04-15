@@ -8,72 +8,74 @@ namespace Zamboni14Legacy;
 public class ServerGame
 {
     private readonly object _lockReplicatedPlayers = new();
+    
+    private SortedDictionary<string, string> toStringDictionary(MatchmakingCriteriaData matchmakingCriteriaData)
+    {
+        SortedDictionary<string, string> retList = new();
+        foreach (var VARIABLE in matchmakingCriteriaData.mGenericRulePrefsList)
+        {
+            retList.Add(VARIABLE.mRuleName, VARIABLE.mDesiredValues[0]);
+        }
 
-    // public ServerGame(ServerPlayer host, StartMatchmakingRequest request, string gameMode)
-    // {
-    //     var gameId = Program.Database.GetNextGameId();
-    //
-    //     ReplicatedGameData = new ReplicatedGameData
-    //     {
-    //         mAdminPlayerList = new List<long>
-    //         {
-    //             host.UserIdentification.mBlazeId,
-    //         },
-    //         mGameAttribs = VsGameAttribs(),
-    //         mSlotCapacities = Capacities("1"),
-    //         mEntryCriteriaMap = new SortedDictionary<string, string>(),
-    //         mGameId = gameId,
-    //         mGameName = "game" + gameId,
-    //         mGameProtocolVersionHash = GetGameProtocolVersionHash(request.mGameProtocolVersionString),
-    //         mGameSettings = request.mGameSettings,
-    //         mGameReportingId = gameId,
-    //         mGameState = GameState.INITIALIZING,
-    //         mGameTypeName = "game" + gameId,
-    //         mGameStatusUrl = "",
-    //         mHostNetworkAddressList = new List<NetworkAddress>
-    //         {
-    //             host.ExtendedData.mAddress
-    //         },
-    //         mTopologyHostSessionId = host.UserIdentification.mExternalId,
-    //         mIgnoreEntryCriteriaWithInvite = true,
-    //         mMeshAttribs = new SortedDictionary<string, string>(),
-    //         mMaxPlayerCapacity = 2,
-    //         mNetworkQosData = host.ExtendedData.mQosData,
-    //         mServerNotResetable = false,
-    //         mNetworkTopology = request.mNetworkTopology,
-    //         mPersistedGameId = "game" + gameId,
-    //         mPersistedGameIdSecret = new byte[]
-    //         {
-    //         },
-    //         mPlatformHostInfo = new HostInfo
-    //         {
-    //             mPlayerId = host.UserIdentification.mBlazeId,
-    //             mSlotId = 0
-    //         },
-    //         mPresenceMode = PresenceMode.PRESENCE_MODE_STANDARD,
-    //         mPingSiteAlias = "qos",
-    //         mQueueCapacity = 2,
-    //         mSharedSeed = 2,
-    //         mTeamCapacity = 2,
-    //         mTopologyHostInfo = new HostInfo
-    //         {
-    //             mPlayerId = host.UserIdentification.mBlazeId,
-    //             mSlotId = 0
-    //         },
-    //         mTeamIds = new List<ushort>(),
-    //         mUUID = "",
-    //         mVoipNetwork = VoipTopology.VOIP_DISABLED,
-    //         mGameProtocolVersionString = request.mGameProtocolVersionString,
-    //         mXnetNonce = new byte[]
-    //         {
-    //         },
-    //         mXnetSession = new byte[]
-    //         {
-    //         }
-    //     };
-    //
-    //     ServerManager.AddServerGame(this);
-    // }
+        return retList;
+    }
+    
+    public ServerGame(ServerPlayer host, StartMatchmakingRequest request)
+    {
+        var gameId = Program.Database.GetNextGameId();
+
+        ReplicatedGameData = new ReplicatedGameData
+        {
+            mAdminPlayerList = new List<long>
+            {
+                host.UserIdentification.mAccountId
+            },
+            mGameAttribs = toStringDictionary(request.mCriteriaData),
+            mSlotCapacities = new List<ushort>
+            {
+                0, request.mCriteriaData.mGameSizeRulePrefs.mMaxPlayerCapacity
+            },
+            mEntryCriteriaMap = request.mEntryCriteriaMap,
+            mGameId = gameId,
+            mGameName = "game" + gameId,
+            mGameSettings = request.mGameSettings,
+            mGameReportingId = gameId,
+            mGameState = GameState.INITIALIZING,
+            mHostNetworkAddressList = new List<NetworkAddress>
+            {
+                host.ExtendedData.mAddress
+            },
+            mTopologyHostSessionId = (uint)host.UserIdentification.mAccountId,
+            mIgnoreEntryCriteriaWithInvite = true,
+            mMeshAttribs = new SortedDictionary<string, string>(),
+            mMaxPlayerCapacity = request.mCriteriaData.mGameSizeRulePrefs.mMaxPlayerCapacity,
+            mNetworkQosData = host.ExtendedData.mQosData,
+            mNetworkTopology = GameNetworkTopology.CLIENT_SERVER_PEER_HOSTED,
+            mPlatformHostInfo = new HostInfo
+            {
+                mPlayerId = host.UserIdentification.mAccountId,
+                mSlotId = 0
+            },
+            mPingSiteAlias = "qos",
+            mQueueCapacity = 0,
+            mTopologyHostInfo = new HostInfo
+            {
+                mPlayerId = host.UserIdentification.mAccountId,
+                mSlotId = 0
+            },
+            mUUID = "game" + gameId,
+            mVoipNetwork = VoipTopology.VOIP_DISABLED,
+            mGameProtocolVersionString = request.mGameProtocolVersionString,
+            mXnetNonce = new byte[]
+            {
+            },
+            mSharedSeed = (uint)gameId,
+            mXnetSession = new byte[]
+            {
+            }
+        };
+        ServerManager.AddServerGame(gameId, this);
+    }
 
     public ServerGame(ServerPlayer host, CreateGameRequest request)
     {
@@ -165,7 +167,18 @@ public class ServerGame
         GameManagerBase.Server.NotifyGameSetupAsync(serverPlayer.BlazeServerConnection, new NotifyGameSetup
         {
             mGameData = ReplicatedGameData,
-            mGameRoster = ReplicatedGamePlayers
+            mGameRoster = ReplicatedGamePlayers,
+            mGameSetupReason = new GameSetupReason
+            {
+                MatchmakingSetupContext = new MatchmakingSetupContext
+                {
+                    mFitScore = 10,
+                    mMatchmakingResult = MatchmakingResult.SUCCESS_CREATED_GAME,
+                    mMaxPossibleFitScore = 10,
+                    mSessionId = matchmakingSessionId,
+                    mUserSessionId = (uint)serverPlayer.UserIdentification.mAccountId
+                }
+            }
         });
 
         NotifyParticipants(new NotifyPlayerJoining
