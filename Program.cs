@@ -10,6 +10,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using Zamboni14Legacy.Components.Blaze;
 using Zamboni14Legacy.Components.NHL14Legacy;
 using Zamboni14Legacy.Components.NHL14Legacy.Structs.Report;
+using ZamboniUltimateTeam;
 using LogLevel = NLog.LogLevel;
 
 namespace Zamboni14Legacy;
@@ -129,6 +130,9 @@ internal class Program
         core.AddComponent<OSDKSettingsComponent>();
         core.AddComponent<TwoTwoSixEightComponent>();
         core.AddComponent<OsdkTicker2Component>();
+
+        UltimateTeam.Initialize(Database.connectionString, new ServerProviderBridge());
+        core.AddComponent<CardHouseComponent>();
 
 
         tdfFactory.RegisterTdfType(typeof(Report));

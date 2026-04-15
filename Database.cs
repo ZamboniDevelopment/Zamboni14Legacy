@@ -11,7 +11,7 @@ namespace Zamboni14Legacy;
 public class Database
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private readonly string connectionString = Program.ZamboniConfig.DatabaseConnectionString;
+    public readonly string connectionString = Program.ZamboniConfig.DatabaseConnectionString;
     public readonly bool isEnabled;
 
     private ulong fallbackGameIdCounter = 1;

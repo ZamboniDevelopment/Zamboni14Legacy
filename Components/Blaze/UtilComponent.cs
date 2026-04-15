@@ -180,4 +180,21 @@ internal class UtilComponent : UtilComponentBase.Server
             mLocalizedStrings = retList
         });
     }
+    
+    public override Task<FilterUserTextResponse> FilterForProfanityAsync(FilterUserTextResponse request, BlazeRpcContext context)
+    {
+        var response = new List<FilteredUserText>();
+
+        foreach (var filteredUserText in request.mFilteredTextList)
+            response.Add(new FilteredUserText
+            {
+                mFilteredText = filteredUserText.mFilteredText,
+                mResult = FilterResult.FILTER_RESULT_PASSED
+            });
+
+        return Task.FromResult(new FilterUserTextResponse
+        {
+            mFilteredTextList = response
+        });
+    }
 }
