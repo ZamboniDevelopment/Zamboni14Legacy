@@ -374,7 +374,7 @@ internal class GameManager : GameManagerBase.Server
         //Hack fix
         Task.Run(async () =>
         {
-            await Task.Delay(100);
+            await Task.Delay(1000);
             UserSessionsBase.Server.NotifyUserSessionDisconnectedAsync(context.BlazeConnection, new UserSessionDisconnectReason
             {
                 mDisconnectReason = UserSessionDisconnectReason.DisconnectReason.DUPLICATE_LOGIN
